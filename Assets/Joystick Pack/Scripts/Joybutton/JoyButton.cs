@@ -3,8 +3,17 @@ using UnityEngine.EventSystems;
 
 public class JoyButton : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
 {
-    [SerializeField]
-    protected bool Pressed;
+    private bool Pressed;
+
+    public bool isPressed()
+    {
+        if (Pressed == true)
+        {
+            Pressed = false;
+            return true;
+        }
+        return false;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -14,17 +23,5 @@ public class JoyButton : MonoBehaviour, IPointerUpHandler, IPointerDownHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         Pressed = false;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

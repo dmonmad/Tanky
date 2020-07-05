@@ -1,180 +1,298 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 //using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.AI;
 
 public class GameManager : MonoBehaviour
 {
-    public int m_NumRoundsToWin = 5;        
-    public float m_StartDelay = 3f;         
-    public float m_EndDelay = 3f;           
-    public CameraControl m_CameraControl;   
-    public Text m_MessageText;              
-    public GameObject m_TankPrefab;         
-    public TankManager[] m_Tanks;           
+    public static GameManager instance;
+
+    public int m_EnemyTanksLeft;
+    public TextMeshProUGUI m_EnemyTanksLeftText;
+    public GameObject m_LoseMenu;
+    public string m_NextLevelName = "Leve1";
+    public int m_LevelToUnlock = 0;
+    private List<StateController> m_EnemyTanks = new List<StateController>();
+    private PlayerControl m_PlayerController;
+
+    //    public int m_NumRoundsToWin = 5;        
+    //    public float m_StartDelay = 3f;         
+    //    public float m_EndDelay = 3f;           
+    //    public CameraControl m_CameraControl;   
+    //    public Text m_MessageText;              
+    //    public GameObject m_TankPrefab;         
+    //    public TankManager[] m_Tanks;           
 
 
-    private int m_RoundNumber;              
-    private WaitForSeconds m_StartWait;     
-    private WaitForSeconds m_EndWait;       
-/*    private TankManager m_RoundWinner;
-    private TankManager m_GameWinner;       
-*/
-
-    private void Start()
+    //    private int m_RoundNumber;              
+    //    private WaitForSeconds m_StartWait;     
+    //    private WaitForSeconds m_EndWait;       
+    ///*    private TankManager m_RoundWinner;
+    //    private TankManager m_GameWinner;       
+    //*/
+    private void Awake()
     {
-        m_StartWait = new WaitForSeconds(m_StartDelay);
-        m_EndWait = new WaitForSeconds(m_EndDelay);
-
-        SpawnAllTanks();
-        SetCameraTargets();
-
-        StartCoroutine(GameLoop());
-    }
-
-
-    private void SpawnAllTanks()
-    {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        if (instance)
         {
-            m_Tanks[i].m_Instance =
-                Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
-            m_Tanks[i].m_PlayerNumber = i + 1;
-            m_Tanks[i].Setup();
-        }
-    }
-
-
-    private void SetCameraTargets()
-    {
-        Transform[] targets = new Transform[m_Tanks.Length];
-
-        for (int i = 0; i < targets.Length; i++)
-        {
-            targets[i] = m_Tanks[i].m_Instance.transform;
-        }
-
-        m_CameraControl.m_Targets = targets;
-    }
-
-
-    private IEnumerator GameLoop()
-    {
-        yield return StartCoroutine(RoundStarting());
-        yield return StartCoroutine(RoundPlaying());
-        yield return StartCoroutine(RoundEnding());
-
-/*        if (m_GameWinner != null)
-        {
-            SceneManager.LoadScene(0);
+            Destroy(this);
         }
         else
         {
-            StartCoroutine(GameLoop());
+            instance = this;
         }
-*/    }
-
-
-    private IEnumerator RoundStarting()
-    {
-        yield return m_StartWait;
     }
 
-
-    private IEnumerator RoundPlaying()
+    private void Start()
     {
-        yield return null;
-    }
+        StateController[] enemyTanks = FindObjectsOfType<StateController>();
 
-
-    private IEnumerator RoundEnding()
-    {
-        yield return m_EndWait;
-    }
-
-
-    private bool OneTankLeft()
-    {
-        int numTanksLeft = 0;
-
-        for (int i = 0; i < m_Tanks.Length; i++)
+        foreach(StateController sc in enemyTanks)
         {
-            if (m_Tanks[i].m_Instance.activeSelf)
-                numTanksLeft++;
+            m_EnemyTanks.Add(sc);
         }
 
-        return numTanksLeft <= 1;
+        m_EnemyTanksLeft = enemyTanks.Length;
+
+        m_EnemyTanksLeftText.SetText(m_EnemyTanksLeft.ToString());
+
+
+        m_PlayerController = FindObjectOfType<PlayerControl>();
+
+
+        Invoke("GameStart", Config.SCENES_WAITINGPREROUND);
+        //m_StartWait = new WaitForSeconds(m_StartDelay);
+        //m_EndWait = new WaitForSeconds(m_EndDelay);
+
+        //SpawnAllTanks();
+        //SetCameraTargets();
+
+        //StartCoroutine(GameLoop());
     }
 
-/*
-    private TankManager GetRoundWinner()
+    public void LoadNextLevel()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        int actualLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        int levelsCount = SceneManager.sceneCountInBuildSettings - 1;
+        int nextLevelIndex;
+
+        if (actualLevelIndex <= SceneManager.sceneCountInBuildSettings)
         {
-            if (m_Tanks[i].m_Instance.activeSelf)
-                return m_Tanks[i];
+            nextLevelIndex = 0;
+        }
+        else
+        {
+            nextLevelIndex = actualLevelIndex + 1;
         }
 
-        return null;
+        string sceneToLoad = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(nextLevelIndex));
+        Debug.Log(sceneToLoad);
+        SceneFader.instance.FadeTo(sceneToLoad);
     }
 
-
-    private TankManager GetGameWinner()
+    private void GameStart()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            if (m_Tanks[i].m_Wins == m_NumRoundsToWin)
-                return m_Tanks[i];
-        }
-
-        return null;
+        StartEnemyTanks();
+        m_PlayerController.TurnOn();
     }
 
-
-    private string EndMessage()
+    private void StartEnemyTanks()
     {
-        string message = "DRAW!";
-
-        if (m_RoundWinner != null)
-            message = m_RoundWinner.m_ColoredPlayerText + " WINS THE ROUND!";
-
-        message += "\n\n\n\n";
-
-        for (int i = 0; i < m_Tanks.Length; i++)
+        foreach(StateController sc in m_EnemyTanks)
         {
-            message += m_Tanks[i].m_ColoredPlayerText + ": " + m_Tanks[i].m_Wins + " WINS\n";
+            sc.enabled = true;
         }
-
-        if (m_GameWinner != null)
-            message = m_GameWinner.m_ColoredPlayerText + " WINS THE GAME!";
-
-        return message;
     }
-*/
 
-    private void ResetAllTanks()
+    private void StopEnemyTanks()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        foreach (StateController sc in m_EnemyTanks)
         {
-            m_Tanks[i].Reset();
+            sc.enabled = false;
+
+            NavMeshAgent nma = sc.GetComponent<NavMeshAgent>();
+            if (nma)
+            {
+                nma.isStopped = true;
+            }
         }
     }
 
-
-    private void EnableTankControl()
+    public void TankDied()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
+        m_EnemyTanksLeft--;
+        m_EnemyTanksLeftText.SetText(m_EnemyTanksLeft.ToString());
+
+        if (m_EnemyTanksLeft == 0 && m_PlayerController.m_isPlayerAlive)
         {
-            m_Tanks[i].EnableControl();
+            PlayerWon();
         }
     }
 
-
-    private void DisableTankControl()
+    private void StopGame()
     {
-        for (int i = 0; i < m_Tanks.Length; i++)
-        {
-            m_Tanks[i].DisableControl();
-        }
+        StopEnemyTanks();
+        m_PlayerController.TurnOff();
     }
+
+    public void PlayerLost()
+    {
+        StopGame();
+        UILevelManager.instance.ShowLoseMenu();
+        m_PlayerController.TurnOff();
+    }
+
+    public void PlayerWon()
+    {
+        StopGame();
+        PlayerPrefs.SetInt("levelReached", m_LevelToUnlock);
+        LoadNextLevel();
+    }
+
+    //    private void SpawnAllTanks()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            m_Tanks[i].m_Instance =
+    //                Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
+    //            m_Tanks[i].m_PlayerNumber = i + 1;
+    //            m_Tanks[i].Setup();
+    //        }
+    //    }
+
+
+    //    private void SetCameraTargets()
+    //    {
+    //        Transform[] targets = new Transform[m_Tanks.Length];
+
+    //        for (int i = 0; i < targets.Length; i++)
+    //        {
+    //            targets[i] = m_Tanks[i].m_Instance.transform;
+    //        }
+
+    //        m_CameraControl.m_Targets = targets;
+    //    }
+
+
+    //    private IEnumerator GameLoop()
+    //    {
+    //        yield return StartCoroutine(RoundStarting());
+    //        yield return StartCoroutine(RoundPlaying());
+    //        yield return StartCoroutine(RoundEnding());
+
+    ///*        if (m_GameWinner != null)
+    //        {
+    //            SceneManager.LoadScene(0);
+    //        }
+    //        else
+    //        {
+    //            StartCoroutine(GameLoop());
+    //        }
+    //*/    }
+
+
+    //    private IEnumerator RoundStarting()
+    //    {
+    //        yield return m_StartWait;
+    //    }
+
+
+    //    private IEnumerator RoundPlaying()
+    //    {
+    //        yield return null;
+    //    }
+
+
+    //    private IEnumerator RoundEnding()
+    //    {
+    //        yield return m_EndWait;
+    //    }
+
+
+    //    private bool OneTankLeft()
+    //    {
+    //        int numTanksLeft = 0;
+
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            if (m_Tanks[i].m_Instance.activeSelf)
+    //                numTanksLeft++;
+    //        }
+
+    //        return numTanksLeft <= 1;
+    //    }
+
+    ///*
+    //    private TankManager GetRoundWinner()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            if (m_Tanks[i].m_Instance.activeSelf)
+    //                return m_Tanks[i];
+    //        }
+
+    //        return null;
+    //    }
+
+
+    //    private TankManager GetGameWinner()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            if (m_Tanks[i].m_Wins == m_NumRoundsToWin)
+    //                return m_Tanks[i];
+    //        }
+
+    //        return null;
+    //    }
+
+
+    //    private string EndMessage()
+    //    {
+    //        string message = "DRAW!";
+
+    //        if (m_RoundWinner != null)
+    //            message = m_RoundWinner.m_ColoredPlayerText + " WINS THE ROUND!";
+
+    //        message += "\n\n\n\n";
+
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            message += m_Tanks[i].m_ColoredPlayerText + ": " + m_Tanks[i].m_Wins + " WINS\n";
+    //        }
+
+    //        if (m_GameWinner != null)
+    //            message = m_GameWinner.m_ColoredPlayerText + " WINS THE GAME!";
+
+    //        return message;
+    //    }
+    //*/
+
+    //    private void ResetAllTanks()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            m_Tanks[i].Reset();
+    //        }
+    //    }
+
+
+    //    private void EnableTankControl()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            m_Tanks[i].EnableControl();
+    //        }
+    //    }
+
+
+    //    private void DisableTankControl()
+    //    {
+    //        for (int i = 0; i < m_Tanks.Length; i++)
+    //        {
+    //            m_Tanks[i].DisableControl();
+    //        }
+    //    }
 }

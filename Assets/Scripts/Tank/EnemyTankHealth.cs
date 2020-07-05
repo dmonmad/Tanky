@@ -51,6 +51,8 @@ public class EnemyTankHealth : MonoBehaviour
         // Play the tank explosion sound effect.
         m_ExplosionAudio.Play();
 
+        GameManager.instance.TankDied();
+
         // Turn the tank off.
         gameObject.SetActive(false);
     }

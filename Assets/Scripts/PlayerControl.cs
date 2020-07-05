@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public TankShooting shooting;
+    public TankHealth health;
+    public TankMovement movement;
+
+    public bool m_isPlayerAlive;
+
+    public void TurnOff()
     {
-        
+        shooting.enabled = false;
+        health.enabled = false;
+        movement.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TurnOn()
     {
-        
+        shooting.enabled = true;
+        health.enabled = true;
+        movement.enabled = true;
     }
 }
