@@ -6,14 +6,6 @@ public class UIMainMenuManager : MonoBehaviour
 {
     public static UIMainMenuManager instance;
 
-    public static string MainMenuSceneName;
-    public static string OptionsSceneName;
-    public static string LevelSelectionSceneName;
-
-    public string MainMenuName;
-    public string OptionsName;
-    public string LevelSelectionName;
-
     private void Awake()
     {
         if (instance)
@@ -28,9 +20,7 @@ public class UIMainMenuManager : MonoBehaviour
 
     private void Start()
     {
-        MainMenuSceneName = MainMenuName;
-        OptionsSceneName = OptionsName;
-        LevelSelectionSceneName = LevelSelectionName;
+        Application.targetFrameRate = 60;
     }
 
     // Start is called before the first frame update

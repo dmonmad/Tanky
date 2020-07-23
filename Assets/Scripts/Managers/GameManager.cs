@@ -75,7 +75,6 @@ public class GameManager : MonoBehaviour
     public void LoadNextLevel()
     {
         int actualLevelIndex = SceneManager.GetActiveScene().buildIndex;
-        int levelsCount = SceneManager.sceneCountInBuildSettings - 1;
         int nextLevelIndex;
 
         if (actualLevelIndex <= SceneManager.sceneCountInBuildSettings)
