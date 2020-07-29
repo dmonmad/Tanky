@@ -10,6 +10,11 @@ public class PlayerControl : MonoBehaviour
 
     public bool m_isPlayerAlive;
 
+    private void Start()
+    {
+        m_isPlayerAlive = true;
+    }
+
     public void TurnOff()
     {
         shooting.enabled = false;

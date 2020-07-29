@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
             sc.enabled = false;
 
             NavMeshAgent nma = sc.GetComponent<NavMeshAgent>();
-            if (nma)
+            if (nma && nma.isOnNavMesh)
             {
                 nma.isStopped = true;
             }
@@ -121,9 +121,10 @@ public class GameManager : MonoBehaviour
 
     public void TankDied()
     {
+        Debug.Log("Tank died");
         m_EnemyTanksLeft--;
         m_EnemyTanksLeftText.SetText(m_EnemyTanksLeft.ToString());
-
+        Debug.Log(m_PlayerController.m_isPlayerAlive);
         if (m_EnemyTanksLeft == 0 && m_PlayerController.m_isPlayerAlive)
         {
             PlayerWon();
