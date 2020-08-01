@@ -111,17 +111,20 @@ PlayerSettings:
   switchNVNShaderPoolsGranularity: 33554432
   switchNVNDefaultPoolsGranularity: 16777216
   switchNVNOtherPoolsGranularity: 16777216
+  switchNVNMaxPublicTextureIDCount: 0
+  switchNVNMaxPublicSamplerIDCount: 0
   stadiaPresentMode: 0
   stadiaTargetFramerate: 0
   vulkanNumSwapchainBuffers: 3
   vulkanEnableSetSRGBWrite: 0
+  vulkanEnableLateAcquireNextImage: 0
   m_SupportedAspectRatios:
     4:3: 1
     5:4: 1
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.4d Alpha
+  bundleVersion: 0.4f Alpha
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -163,7 +166,7 @@ PlayerSettings:
   targetPixelDensity: 30
   resolutionScalingMode: 0
   androidSupportedAspectRatio: 0
-  androidMaxAspectRatio: 2.1
+  androidMaxAspectRatio: 1.86
   applicationIdentifier:
     Android: com.tanky.darkoceanstudio
     Standalone: unity.DefaultCompany.UniteBoston2015TrainingDay
