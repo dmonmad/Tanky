@@ -5,6 +5,7 @@ using UnityEngine;
 public class UIMainMenuManager : MonoBehaviour
 {
     public static UIMainMenuManager instance;
+    public GameObject OptionsObject;
 
     private void Awake()
     {
@@ -21,6 +22,18 @@ public class UIMainMenuManager : MonoBehaviour
     private void Start()
     {
         Application.targetFrameRate = 60;
+    }
+
+    public void OpenOptions()
+    {
+        OptionsObject.SetActive(true);
+
+    }
+
+    public void CloseOptions()
+    {
+        OptionsObject.SetActive(false);
+
     }
 
     // Start is called before the first frame update
