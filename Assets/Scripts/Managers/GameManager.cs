@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
 
     public int m_EnemyTanksLeft;
-    public TextMeshProUGUI m_EnemyTanksLeftText;
     public GameObject m_LoseMenu;
     public string m_NextLevelName = "Leve1";
     public int m_LevelToUnlock = 0;
@@ -55,8 +54,6 @@ public class GameManager : MonoBehaviour
         }
 
         m_EnemyTanksLeft = enemyTanks.Length;
-
-        m_EnemyTanksLeftText.SetText(m_EnemyTanksLeft.ToString());
 
 
         m_PlayerController = FindObjectOfType<PlayerControl>();
@@ -123,11 +120,14 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Tank died");
         m_EnemyTanksLeft--;
-        m_EnemyTanksLeftText.SetText(m_EnemyTanksLeft.ToString());
         Debug.Log(m_PlayerController.m_isPlayerAlive);
         if (m_EnemyTanksLeft == 0 && m_PlayerController.m_isPlayerAlive)
         {
             PlayerWon();
+        }
+        else if((m_EnemyTanksLeft == 0 && !m_PlayerController.m_isPlayerAlive))
+        {
+            PlayerLost();
         }
     }
 
@@ -135,6 +135,10 @@ public class GameManager : MonoBehaviour
     {
         StopEnemyTanks();
         m_PlayerController.TurnOff();
+        foreach(ShellExplosion se in ShellExplosion.projectiles)
+        {
+            se.Explode();
+        }
     }
 
     public void PlayerLost()

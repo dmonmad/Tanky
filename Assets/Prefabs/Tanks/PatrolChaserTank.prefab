@@ -5264,7 +5264,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7129783473648780866}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 433b73fbb9150cb49b2fe42d38860d16, type: 3}
   m_Name: 
@@ -5274,7 +5274,11 @@ MonoBehaviour:
   remainState: {fileID: 11400000, guid: 4adeb1f2e40a7914cad23a67a6bac33f, type: 2}
   enemyStats: {fileID: 11400000, guid: 56acbf964ea0f5242968089c7fc2df5e, type: 2}
   tankMaterial: {fileID: 2100000, guid: 3e66312403919334abcd548507c2213f, type: 2}
-  waypointList: []
+  waypointList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   navMeshAgent: {fileID: 0}
   enemyTankShooting: {fileID: 0}
   wayPointList: []

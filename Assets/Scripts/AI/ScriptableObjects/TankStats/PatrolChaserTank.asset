@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PatrolChaserTank
   m_EditorClassIdentifier: 
   m_AttackRate: 3
-  m_MovementSpeed: 3.5
+  m_MovementSpeed: 3
   m_RotatingSpeed: 2
   m_SearchDuration: 2
   m_ProjectileSpeed: 15

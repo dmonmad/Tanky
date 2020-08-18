@@ -11,8 +11,6 @@ public class TankMovement : MonoBehaviour
     public float m_PitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
     private Joystick joystick;
-    private string m_MovementAxisName;          // The name of the input axis for moving forward and back.
-    private string m_TurnAxisName;              // The name of the input axis for turning.
     private Rigidbody m_Rigidbody;              // Reference used to move the tank.
     private float m_VerticalMovementValue;         // The current value of the movement input.
     private float m_HorizontalMovementValue;             // The current value of the turn input.
@@ -136,7 +134,7 @@ public class TankMovement : MonoBehaviour
 
         if (turn != Vector3.zero)
         {
-            transform.rotation = Quaternion.LookRotation(new Vector3(m_HorizontalMovementValue, 0, m_VerticalMovementValue));
+            transform.rotation = Quaternion.RotateTowards(Quaternion.LookRotation(transform.forward, transform.up), Quaternion.LookRotation(new Vector3(m_HorizontalMovementValue, 0, m_VerticalMovementValue)), m_TurnSpeed * Time.deltaTime);
         }
 
         //Vector3 turn = new Vector3(m_HorizontalMovementValue, 0, m_VerticalMovementValue) * m_TurnSpeed * Time.deltaTime;

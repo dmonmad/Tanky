@@ -7,14 +7,16 @@ public class TankShooting : MonoBehaviour
     public Rigidbody m_Shell;                   // Prefab of the shell.
     public Transform m_FireTransform;           // A child of the tank where the shells are spawned.
     public AudioSource m_ShootingAudio;         // Reference to the audio source used to play the shooting audio. NB: different to the movement audio source.
-    public AudioClip m_ChargingClip;            // Audio that plays when each shot is charging up.
     public AudioClip m_FireClip;                // Audio that plays when each shot is fired.
     public float m_ProjectileSpeed = 15f;
     public int m_MaxProjectilesAlive = 6;
+    public ParticleSystem m_ShootingMuzzle;
+    public ParticleSystem m_ShootingSmoke;
 
     private bool m_Fired;                       // Whether or not the shell has been launched with this button press.
     private JoyButton m_FireButton;
 
+    public LineRenderer m_FireLine;
 
     private void OnEnable()
     {
@@ -28,6 +30,7 @@ public class TankShooting : MonoBehaviour
 
         // The rate that the launch force charges up is the range of possible forces by the max charge time.
         m_FireButton = FindObjectOfType<JoyButton>();
+        m_FireLine.positionCount = 2;
     }
 
 
@@ -38,8 +41,13 @@ public class TankShooting : MonoBehaviour
         {
             Fire();
             // Change the clip to the charging clip and start it playing.
-            m_ShootingAudio.clip = m_ChargingClip;
-            m_ShootingAudio.Play();
+        }
+
+        if (Physics.Raycast(m_FireTransform.position, m_FireTransform.forward, out RaycastHit hit))
+        {
+            Debug.DrawRay(m_FireTransform.position, m_FireTransform.forward * 90f, Color.white);
+            m_FireLine.SetPosition(0, m_FireTransform.position);
+            m_FireLine.SetPosition(1, hit.point);
         }
     }
 
@@ -51,7 +59,9 @@ public class TankShooting : MonoBehaviour
             Instantiate(m_Shell, m_FireTransform.position, m_FireTransform.rotation).GetComponent<ShellExplosion>();
 
         shellInstance.Initialize(false, 1, m_ProjectileSpeed * m_FireTransform.forward);
-        
+
+        m_ShootingMuzzle.gameObject.SetActive(true);
+        m_ShootingSmoke.gameObject.SetActive(true);
 
         // Change the clip to the firing clip and play it.
         m_ShootingAudio.clip = m_FireClip;

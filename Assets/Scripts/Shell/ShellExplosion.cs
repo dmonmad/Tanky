@@ -8,6 +8,7 @@ public class ShellExplosion : MonoBehaviour
     public LayerMask m_TankMask;                        // Used to filter what the explosion affects, this should be set to "Players".
     public ParticleSystem m_ExplosionParticles;         // Reference to the particles that will play on explosion.
     public AudioSource m_ExplosionAudio;                // Reference to the audio that will play on explosion.
+    public AudioSource m_RicochetAudio;
     public float m_MaxLifeTime = 10f;                    // The time in seconds before the shell is removed.
     public int m_MaxBouncesCount = 1;
     public int m_BouncesLeft;
@@ -70,21 +71,7 @@ public class ShellExplosion : MonoBehaviour
 
         if (hasHit || m_BouncesLeft <= 0 || collision.gameObject.CompareTag(m_ProjectileTag))
         {
-            // Unparent the particles from the shell.
-            m_ExplosionParticles.transform.parent = null;
-
-            // Play the particle system.
-            m_ExplosionParticles.Play();
-
-            // Play the explosion sound effect.
-            m_ExplosionAudio.Play();
-
-            // Once the particles have finished, destroy the gameobject they are on.
-            ParticleSystem.MainModule mainModule = m_ExplosionParticles.main;
-            Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
-
-            // Destroy the shell.
-            Destroy(gameObject);
+            Explode();
         }
         else if (!hasHit && m_BouncesLeft > 0)
         {
@@ -93,7 +80,32 @@ public class ShellExplosion : MonoBehaviour
             rb.velocity = lastVelocity;
             rb.MoveRotation(Quaternion.LookRotation(lastVelocity));
             m_BouncesLeft--;
+            OnRicochet();
         }
+    }
+
+    public void Explode()
+    {
+        // Unparent the particles from the shell.
+        m_ExplosionParticles.transform.parent = null;
+
+        // Play the particle system.
+        m_ExplosionParticles.Play();
+
+        // Play the explosion sound effect.
+        m_ExplosionAudio.Play();
+
+        // Once the particles have finished, destroy the gameobject they are on.
+        ParticleSystem.MainModule mainModule = m_ExplosionParticles.main;
+        Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
+
+        // Destroy the shell.
+        Destroy(gameObject);
+    }
+
+    private void OnRicochet()
+    {
+        m_RicochetAudio.Play();
     }
 
     private void OnDestroy()
