@@ -85,6 +85,7 @@ public class GameManager : MonoBehaviour
 
         string sceneToLoad = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(nextLevelIndex));
         Debug.Log(sceneToLoad);
+        
         SceneFader.instance.FadeTo(sceneToLoad);
     }
 

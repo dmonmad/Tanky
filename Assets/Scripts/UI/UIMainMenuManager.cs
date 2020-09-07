@@ -5,7 +5,10 @@ using UnityEngine;
 public class UIMainMenuManager : MonoBehaviour
 {
     public static UIMainMenuManager instance;
+    public GameObject MainMenuObject;
     public GameObject OptionsObject;
+    public GameObject LevelSelectionObject;
+    public GameObject SkinSelectionObject;
 
     private void Awake()
     {
@@ -27,23 +30,34 @@ public class UIMainMenuManager : MonoBehaviour
     public void OpenOptions()
     {
         OptionsObject.SetActive(true);
-
+        MainMenuObject.SetActive(false);
+        
     }
 
     public void CloseOptions()
     {
         OptionsObject.SetActive(false);
-
+        MainMenuObject.SetActive(true);
     }
 
     // Start is called before the first frame update
-    public void LoadLevelSelection()
+    public void OpenLevelSelection()
     {
-        SceneFader.instance.FadeTo(Config.SCENES_LEVELSELECTIONNAME);
+        LevelSelectionObject.SetActive(true);
     }
 
-    public void Quit()
+    public void CloseLevelSelection()
     {
-        Application.Quit();
+        LevelSelectionObject.SetActive(false);
+    }
+
+    public void OpenSkinSelector()
+    {
+        SkinSelectionObject.SetActive(true);
+    }
+    
+    public void CloseSkinSelector()
+    {
+        SkinSelectionObject.SetActive(false);
     }
 }
